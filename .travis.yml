@@ -3,7 +3,6 @@ language: php
 php:
     - 7.2
     - 7.3
-    - nightly
 
 before_install:
     - &Xdebug phpenv config-rm xdebug.ini || true
@@ -106,9 +105,6 @@ stages:
     - Test
     - name: Code Quality
       if: type = pull_request
-
-allow_failures:
-    - php: nightly
 
 cache:
     directories:

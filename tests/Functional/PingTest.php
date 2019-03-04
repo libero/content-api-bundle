@@ -12,11 +12,11 @@ final class PingTest extends FunctionalTestCase
      * @test
      * @dataProvider serviceProvider
      */
-    public function each_service_pings(string $prefix) : void
+    public function each_service_pings(string $testCase, string $prefix) : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => $testCase]);
 
-        $request = Request::create("/{$prefix}/ping");
+        $request = Request::create("{$prefix}/ping");
 
         $response = self::$kernel->handle($request);
 
@@ -25,7 +25,8 @@ final class PingTest extends FunctionalTestCase
 
     public function serviceProvider() : iterable
     {
-        yield 'service-one' => ['service-one'];
-        yield 'service-two' => ['service-two'];
+        yield 'Basic' => ['Basic', ''];
+        yield 'Multiple service-one' => ['Multiple', '/service-one'];
+        yield 'Multiple service-two' => ['Multiple', '/service-two'];
     }
 }

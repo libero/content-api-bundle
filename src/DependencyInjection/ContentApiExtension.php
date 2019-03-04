@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use function array_keys;
+use function count;
+use function current;
 use function str_replace;
 
 final class ContentApiExtension extends Extension
@@ -28,29 +30,42 @@ final class ContentApiExtension extends Extension
         $config = $this->processConfiguration($this->getConfiguration($configs, $container), $configs);
 
         foreach (array_keys($config['services']) as $prefix) {
-            $config['services'][$prefix]['name'] = str_replace('-', '_', (string) $prefix);
-            $this->addContentService((string) $prefix, $config['services'][$prefix], $container);
+            $config['services'][$prefix]['prefix'] = $prefix;
+        }
+
+        if (1 === count($config['services']) && false === current($config['services'])['include_prefix']) {
+            $config['services'] = ['' => current($config['services'])];
+        }
+
+        foreach (array_keys($config['services']) as $name) {
+            if ('' === $name) {
+                $config['services'][$name]['internal_name'] = 'service';
+            } else {
+                $config['services'][$name]['internal_name'] = str_replace('-', '_', (string) $name);
+            }
+
+            $this->addContentService((string) $name, $config['services'][$name], $container);
         }
 
         $container->findDefinition(Loader::class)->setArgument(0, $config['services']);
     }
 
-    private function addContentService(string $prefix, array $config, ContainerBuilder $container) : void
+    private function addContentService(string $name, array $config, ContainerBuilder $container) : void
     {
         $ping = new Definition(PingController::class);
         $ping->addTag('controller.service_arguments');
-        $container->setDefinition("libero.content_api.{$config['name']}.ping", $ping);
+        $container->setDefinition("libero.content_api.{$config['internal_name']}.ping", $ping);
 
         $getItem = new Definition(GetItemController::class);
         $getItem->addTag('controller.service_arguments');
         $getItem->addArgument(new Reference($config['items']));
-        $container->setDefinition("libero.content_api.{$config['name']}.item.get", $getItem);
+        $container->setDefinition("libero.content_api.{$config['internal_name']}.item.get", $getItem);
 
         $getItemList = new Definition(GetItemListController::class);
         $getItemList->addTag('controller.service_arguments');
         $getItemList->addArgument(new Reference($config['items']));
-        $getItemList->addArgument($prefix);
-        $container->setDefinition("libero.content_api.{$config['name']}.item_list.get", $getItemList);
+        $getItemList->addArgument($config['prefix']);
+        $container->setDefinition("libero.content_api.{$config['internal_name']}.item_list.get", $getItemList);
     }
 
     public function getConfiguration(array $config, ContainerBuilder $container) : ConfigurationInterface

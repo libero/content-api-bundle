@@ -1,6 +1,6 @@
 parameters:
     ignoreErrors:
-        - '~^.*(?=.* Symfony\\Component\\Config\\Definition\\Builder)(?=.*( |:{2})end\(\)).*$~'
+        - '~^Cannot call method ([a-z]+)Node\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null\.$~'
     level: max
     paths:
         - bin/console

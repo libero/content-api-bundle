@@ -24,13 +24,13 @@ final class Loader extends BaseLoader
         foreach ($this->services as $prefix => $config) {
             $service = new RouteCollectionBuilder();
 
-            $service->add('ping', "libero.content_api.{$config['name']}.ping");
+            $service->add('ping', "libero.content_api.{$config['internal_name']}.ping");
 
-            $service->add('items', "libero.content_api.{$config['name']}.item_list.get")
+            $service->add('items', "libero.content_api.{$config['internal_name']}.item_list.get")
                 ->setRequirement('_format', 'xml')
                 ->setMethods('GET');
 
-            $service->add('items/{id}/versions/{version}', "libero.content_api.{$config['name']}.item.get")
+            $service->add('items/{id}/versions/{version}', "libero.content_api.{$config['internal_name']}.item.get")
                 ->setRequirement('_format', 'xml')
                 ->setMethods('GET');
 

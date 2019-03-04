@@ -6,7 +6,8 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <content-api:content-api>
-        <content-api:service prefix="service-one" include-prefix="false" items="Libero\ContentApiBundle\Adapter\InMemoryItems"/>
+        <content-api:service prefix="service-one" items="Libero\ContentApiBundle\Adapter\InMemoryItems"/>
+        <content-api:service prefix="service-two" items="Libero\ContentApiBundle\Adapter\NullItems"/>
     </content-api:content-api>
 
 </container>

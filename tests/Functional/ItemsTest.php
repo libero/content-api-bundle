@@ -23,11 +23,11 @@ final class ItemsTest extends FunctionalTestCase
      * @test
      * @dataProvider serviceProvider
      */
-    public function it_may_return_an_empty_list(string $prefix) : void
+    public function it_may_return_an_empty_list(string $testCase, string $prefix) : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => $testCase]);
 
-        $request = Request::create("/{$prefix}/items");
+        $request = Request::create("{$prefix}/items");
 
         $response = self::$kernel->handle($request);
 
@@ -44,11 +44,11 @@ final class ItemsTest extends FunctionalTestCase
      * @test
      * @dataProvider serviceProvider
      */
-    public function it_may_returns_an_empty_list_for_a_head_request(string $prefix) : void
+    public function it_may_returns_an_empty_list_for_a_head_request(string $testCase, string $prefix) : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => $testCase]);
 
-        $request = Request::create("/{$prefix}/items", 'HEAD');
+        $request = Request::create("{$prefix}/items", 'HEAD');
 
         $response = self::$kernel->handle($request);
 
@@ -62,11 +62,11 @@ final class ItemsTest extends FunctionalTestCase
      * @test
      * @dataProvider serviceProvider
      */
-    public function it_may_not_find_an_item(string $prefix) : void
+    public function it_may_not_find_an_item(string $testCase, string $prefix) : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => $testCase]);
 
-        $request = Request::create("/{$prefix}/items/1/versions/1");
+        $request = Request::create("{$prefix}/items/1/versions/1");
 
         $this->expectException(ItemNotFound::class);
 
@@ -75,8 +75,9 @@ final class ItemsTest extends FunctionalTestCase
 
     public function serviceProvider() : iterable
     {
-        yield 'service-one' => ['service-one'];
-        yield 'service-two' => ['service-two'];
+        yield 'Basic' => ['Basic', ''];
+        yield 'Multiple service-one' => ['Multiple', '/service-one'];
+        yield 'Multiple service-two' => ['Multiple', '/service-two'];
     }
 
     /**
@@ -84,7 +85,7 @@ final class ItemsTest extends FunctionalTestCase
      */
     public function it_can_find_an_item_version() : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => 'Multiple']);
 
         /** @var InMemoryItems $items */
         $items = self::$container->get(InMemoryItems::class);
@@ -120,7 +121,7 @@ final class ItemsTest extends FunctionalTestCase
      */
     public function it_revalidates_an_item_version() : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => 'Multiple']);
 
         /** @var InMemoryItems $items */
         $items = self::$container->get(InMemoryItems::class);
@@ -151,7 +152,7 @@ final class ItemsTest extends FunctionalTestCase
      */
     public function it_may_not_find_an_item_version() : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => 'Multiple']);
 
         /** @var InMemoryItems $items */
         $items = self::$container->get(InMemoryItems::class);
@@ -176,7 +177,7 @@ final class ItemsTest extends FunctionalTestCase
      */
     public function it_recognises_invalid_ids() : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => 'Multiple']);
 
         $request = Request::create('/service-one/items/foo bar/versions/1');
 
@@ -190,7 +191,7 @@ final class ItemsTest extends FunctionalTestCase
      */
     public function it_recognises_invalid_versions() : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => 'Multiple']);
 
         $request = Request::create('/service-one/items/foo/versions/foo');
 
@@ -205,7 +206,7 @@ final class ItemsTest extends FunctionalTestCase
      */
     public function it_will_not_negotiate_type_if_not_enabled(string $path) : void
     {
-        static::bootKernel(['test_case' => 'Basic']);
+        static::bootKernel(['test_case' => 'Multiple']);
 
         /** @var InMemoryItems $items */
         $items = self::$container->get(InMemoryItems::class);

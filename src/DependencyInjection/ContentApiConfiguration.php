@@ -7,6 +7,7 @@ namespace Libero\ContentApiBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use function count;
 
 final class ContentApiConfiguration implements ConfigurationInterface
 {
@@ -49,7 +50,25 @@ final class ContentApiConfiguration implements ConfigurationInterface
                         ->isRequired()
                         ->info('The service name to use.')
                     ->end()
+                    ->booleanNode('include_prefix')
+                        ->defaultTrue()
+                        ->info('Whether to include the service prefix in the routes.')
+                    ->end()
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(function (array $services) : bool {
+                    if (count($services) > 1) {
+                        foreach ($services as $service) {
+                            if (false === $service['include_prefix']) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                })
+                ->thenInvalid("Services prefixes must be included if there's more than one service.")
             ->end()
         ;
 

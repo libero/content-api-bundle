@@ -119,4 +119,130 @@ final class ItemErrorsTest extends FunctionalTestCase
             $response->getContent()
         );
     }
+
+    /**
+     * @test
+     * @dataProvider invalidItemProvider
+     */
+    public function it_recognises_invalid_put_requests(string $xml, string $title, string $details) : void
+    {
+        static::bootKernel(['test_case' => 'ApiProblem']);
+
+        $request = Request::create('/service/items/1/versions/1', 'PUT', [], [], [], [], $xml);
+
+        $response = self::$kernel->handle($request);
+
+        $this->assertSame('no-cache, private', $response->headers->get('Cache-Control'));
+        $this->assertSame('application/problem+xml; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertSame('en', $response->headers->get('Content-Language'));
+        $this->assertXmlStringEqualsXmlString(
+            <<<XML
+<problem xml:lang="en" xmlns="urn:ietf:rfc:7807">
+    <status>400</status>
+    <title>{$title}</title>
+    <details>{$details}</details>
+</problem>
+XML
+            ,
+            $response->getContent()
+        );
+    }
+
+    public function invalidItemProvider() : iterable
+    {
+        yield 'no namespace' => [
+            <<<XML
+<item>
+    <meta>
+        <id>1</id>
+        <service>service</service>
+    </meta>
+</item>
+XML
+            ,
+            'Invalid document element',
+            'Expected "{http://libero.pub}item" as the document element, found "item".',
+        ];
+        yield 'wrong namespace' => [
+            <<<XML
+<item xmlns="http://not.libero.pub">
+    <meta>
+        <id>1</id>
+        <service>service</service>
+    </meta>
+</item>
+XML
+            ,
+            'Invalid document element',
+            'Expected "{http://libero.pub}item" as the document element, found "{http://not.libero.pub}item".',
+        ];
+
+        yield 'wrong element' => [
+            <<<XML
+<not-item xmlns="http://libero.pub">
+    <meta>
+        <id>1</id>
+        <service>service</service>
+    </meta>
+</not-item>
+XML
+            ,
+            'Invalid document element',
+            'Expected "{http://libero.pub}item" as the document element, found "{http://libero.pub}not-item".',
+        ];
+
+        yield 'missing id' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <service>service</service>
+    </meta>
+</item>
+XML
+            ,
+            'Element not found',
+            'The "/libero:item/libero:meta/libero:id" element could not be found.',
+        ];
+
+        yield 'wrong id' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <id>not-1</id>
+        <service>service</service>
+    </meta>
+</item>
+XML
+            ,
+            'Invalid element value',
+            'Expected {http://libero.pub}id to have the value "1", found "not-1".',
+        ];
+
+        yield 'missing service' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <id>1</id>
+    </meta>
+</item>
+XML
+            ,
+            'Element not found',
+            'The "/libero:item/libero:meta/libero:service" element could not be found.',
+        ];
+
+        yield 'wrong service' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <id>1</id>
+        <service>not-service</service>
+    </meta>
+</item>
+XML
+            ,
+            'Invalid element value',
+            'Expected {http://libero.pub}service to have the value "service", found "not-service".',
+        ];
+    }
 }

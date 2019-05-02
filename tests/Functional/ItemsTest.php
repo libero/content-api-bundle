@@ -15,6 +15,7 @@ use Libero\ContentApiBundle\Model\ItemVersionNumber;
 use Libero\ContentNegotiationBundle\Exception\NotAcceptableFormat;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use UnexpectedValueException;
 use function tests\Libero\ContentApiBundle\stream_from_string;
 
 final class ItemsTest extends FunctionalTestCase
@@ -248,5 +249,138 @@ final class ItemsTest extends FunctionalTestCase
     {
         yield 'list' => ['/service-one/items'];
         yield 'item' => ['/service-one/items/1/versions/1'];
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_add_an_item() : void
+    {
+        static::bootKernel(['test_case' => 'Workflow']);
+
+        $request = Request::create(
+            '/items/1/versions/1',
+            'PUT',
+            [],
+            [],
+            [],
+            [],
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <id>1</id>
+        <service>service-one</service>
+    </meta>
+</item>
+XML
+        );
+
+        $response = self::$kernel->handle($request);
+
+        $this->assertSame(204, $response->getStatusCode());
+
+        /** @var InMemoryItems $items */
+        $items = self::$container->get(InMemoryItems::class);
+
+        $this->assertCount(1, $items);
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidItemProvider
+     */
+    public function it_rejects_invalid_items(string $xml) : void
+    {
+        static::bootKernel(['test_case' => 'Workflow']);
+
+        $request = Request::create('/items/1/versions/1', 'PUT', [], [], [], [], $xml);
+
+        $this->expectException(UnexpectedValueException::class);
+
+        self::$kernel->handle($request);
+    }
+
+    public function invalidItemProvider() : iterable
+    {
+        yield 'no namespace' => [
+            <<<XML
+<item>
+    <meta>
+        <id>1</id>
+        <service>service-one</service>
+    </meta>
+</item>
+XML
+            ,
+        ];
+        yield 'wrong namespace' => [
+            <<<XML
+<item xmlns="http://not.libero.pub">
+    <meta>
+        <id>1</id>
+        <service>service-one</service>
+    </meta>
+</item>
+XML
+            ,
+        ];
+
+        yield 'wrong element' => [
+            <<<XML
+<not-item xmlns="http://libero.pub">
+    <meta>
+        <id>1</id>
+        <service>service-one</service>
+    </meta>
+</not-item>
+XML
+            ,
+        ];
+
+        yield 'missing id' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <service>service-one</service>
+    </meta>
+</item>
+XML
+            ,
+        ];
+
+        yield 'wrong id' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <id>not-1</id>
+        <service>service-one</service>
+    </meta>
+</item>
+XML
+            ,
+        ];
+
+        yield 'missing service' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <id>1</id>
+    </meta>
+</item>
+XML
+            ,
+        ];
+
+        yield 'wrong service' => [
+            <<<XML
+<item xmlns="http://libero.pub">
+    <meta>
+        <id>1</id>
+        <service>not-service-one</service>
+    </meta>
+</item>
+XML
+            ,
+        ];
     }
 }

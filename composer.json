@@ -4,6 +4,9 @@
     "type": "symfony-bundle",
     "license": "MIT",
     "autoload": {
+        "files": [
+            "src/functions.php"
+        ],
         "psr-4": {
             "Libero\\ContentApiBundle\\": "src/"
         }
@@ -38,14 +41,16 @@
         "phpunit/phpunit": "^7.2",
         "symfony/console": "^3.4 || ^4.0",
         "symfony/filesystem": "^3.4 || ^4.0",
-        "symfony/translation": "^3.4 || ^4.0"
+        "symfony/translation": "^3.4 || ^4.0",
+        "symfony/workflow": "^3.4 || ^4.0"
     },
     "suggest": {
         "doctrine/dbal": "To use the DoctrineItems adapter",
         "symfony/filesystem": "To use the FilesystemItems adapter",
         "libero/api-problem-bundle": "To have exceptions converted to API problems",
         "libero/content-negotiation-bundle": "To enable content negotiation",
-        "symfony/translation": "To have exceptions converted to API problems"
+        "symfony/translation": "To have exceptions converted to API problems",
+        "symfony/workflow": "To support PUT requests"
     },
     "config": {
         "sort-packages": true

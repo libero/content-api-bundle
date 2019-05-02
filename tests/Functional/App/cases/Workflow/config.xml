@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<container xmlns="http://symfony.com/schema/dic/services"
-    xmlns:content-api="http://libero.pub/schema/content-api-bundle"
+<container xmlns:content-api="http://libero.pub/schema/content-api-bundle"
     xmlns:framework="http://symfony.com/schema/dic/symfony"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://symfony.com/schema/dic/services"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <framework:config>
@@ -32,7 +32,8 @@
     </framework:config>
 
     <content-api:content-api>
-        <content-api:service prefix="service" items="Libero\ContentApiBundle\Adapter\InMemoryItems" put-workflow="libero.content_api.put"/>
+        <content-api:service prefix="service-one" include-prefix="false" items="Libero\ContentApiBundle\Adapter\InMemoryItems"
+            put-workflow="libero.content_api.put"/>
     </content-api:content-api>
 
 </container>

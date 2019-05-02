@@ -34,6 +34,9 @@ final class Loader extends BaseLoader
                 ->setRequirement('_format', 'xml')
                 ->setMethods('GET');
 
+            $service->add('items/{id}/versions/{version}', "libero.content_api.{$config['internal_name']}.item.put")
+                ->setMethods('PUT');
+
             $routes->mount($prefix, $service);
         }
 

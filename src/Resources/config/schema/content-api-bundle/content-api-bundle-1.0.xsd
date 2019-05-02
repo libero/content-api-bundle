@@ -16,6 +16,7 @@
         <xsd:attribute name="items" type="xsd:string" use="required"/>
         <xsd:attribute name="prefix" type="xsd:string" use="required"/>
         <xsd:attribute name="include-prefix" type="xsd:boolean" default="true"/>
+        <xsd:attribute name="put-workflow" type="xsd:string"/>
     </xsd:complexType>
 
 </xsd:schema>

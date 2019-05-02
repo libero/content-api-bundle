@@ -8,6 +8,18 @@
 
         <defaults public="false"/>
 
+        <service id="Libero\ContentApiBundle\EventListener\ElementNotFoundListener"
+            class="Libero\ContentApiBundle\EventListener\ElementNotFoundListener">
+            <argument type="service" id="translator"/>
+            <tag name="kernel.event_listener" event="libero.api_problem.create" method="onCreateApiProblem"/>
+        </service>
+
+        <service id="Libero\ContentApiBundle\EventListener\InvalidDocumentElementListener"
+            class="Libero\ContentApiBundle\EventListener\InvalidDocumentElementListener">
+            <argument type="service" id="translator"/>
+            <tag name="kernel.event_listener" event="libero.api_problem.create" method="onCreateApiProblem"/>
+        </service>
+
         <service id="Libero\ContentApiBundle\EventListener\InvalidIdListener"
             class="Libero\ContentApiBundle\EventListener\InvalidIdListener">
             <argument type="service" id="translator"/>
@@ -22,6 +34,12 @@
 
         <service id="Libero\ContentApiBundle\EventListener\ItemNotFoundListener"
             class="Libero\ContentApiBundle\EventListener\ItemNotFoundListener">
+            <argument type="service" id="translator"/>
+            <tag name="kernel.event_listener" event="libero.api_problem.create" method="onCreateApiProblem"/>
+        </service>
+
+        <service id="Libero\ContentApiBundle\EventListener\TextContentMismatchListener"
+            class="Libero\ContentApiBundle\EventListener\TextContentMismatchListener">
             <argument type="service" id="translator"/>
             <tag name="kernel.event_listener" event="libero.api_problem.create" method="onCreateApiProblem"/>
         </service>

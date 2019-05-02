@@ -14,6 +14,12 @@
             <tag name="routing.loader"/>
         </service>
 
+        <service id="Libero\ContentApiBundle\Workflow\ValidateDocumentElement"/>
+
+        <service id="Libero\ContentApiBundle\Workflow\ValidateId"/>
+
+        <service id="Libero\ContentApiBundle\Workflow\ValidateService"/>
+
     </services>
 
 </container>

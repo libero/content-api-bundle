@@ -18,6 +18,26 @@
                 <target>An item with the ID "%id%" could not be found.</target>
             </trans-unit>
 
+            <trans-unit id="libero.content.item.element_not_found.title">
+                <source>libero.content.item.element_not_found.title</source>
+                <target>Element not found</target>
+            </trans-unit>
+
+            <trans-unit id="libero.content.item.element_not_found.details">
+                <source>libero.content.item.element_not_found.details</source>
+                <target>The "%element%" element could not be found.</target>
+            </trans-unit>
+
+            <trans-unit id="libero.content.item.invalid_document_element.title">
+                <source>libero.content.item.invalid_document_element.title</source>
+                <target>Invalid document element</target>
+            </trans-unit>
+
+            <trans-unit id="libero.content.item.invalid_document_element.details">
+                <source>libero.content.item.invalid_document_element.details</source>
+                <target>Expected "%expected%" as the document element, found "%actual%".</target>
+            </trans-unit>
+
             <trans-unit id="libero.content.item.invalid_id.title">
                 <source>libero.content.item.invalid_id.title</source>
                 <target>Invalid ID</target>
@@ -36,6 +56,16 @@
             <trans-unit id="libero.content.item.invalid_version.details">
                 <source>libero.content.item.invalid_version.details</source>
                 <target>"%version%" is not a valid version number.</target>
+            </trans-unit>
+
+            <trans-unit id="libero.content.item.text_content_mismatch.title">
+                <source>libero.content.item.text_content_mismatch.title</source>
+                <target>Invalid element value</target>
+            </trans-unit>
+
+            <trans-unit id="libero.content.item.text_content_mismatch.details">
+                <source>libero.content.item.text_content_mismatch.details</source>
+                <target>Expected %element% to have the value "%expected%", found "%actual%".</target>
             </trans-unit>
 
             <trans-unit id="libero.content.item.unexpected_version.title">

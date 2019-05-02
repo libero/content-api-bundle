@@ -6,7 +6,12 @@ namespace Libero\ContentApiBundle\DependencyInjection;
 
 use Libero\ContentApiBundle\Controller\GetItemController;
 use Libero\ContentApiBundle\Controller\GetItemListController;
+use Libero\ContentApiBundle\Controller\PutItemController;
+use Libero\ContentApiBundle\EventListener\AutoTransitionListener;
 use Libero\ContentApiBundle\Routing\Loader;
+use Libero\ContentApiBundle\Workflow\ValidateDocumentElement;
+use Libero\ContentApiBundle\Workflow\ValidateId;
+use Libero\ContentApiBundle\Workflow\ValidateService;
 use Libero\PingController\PingController;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\FileLocator;
@@ -60,6 +65,46 @@ final class ContentApiExtension extends Extension
         $getItem->addTag('controller.service_arguments');
         $getItem->addArgument(new Reference($config['items']));
         $container->setDefinition("libero.content_api.{$config['internal_name']}.item.get", $getItem);
+
+        if (isset($config['put_workflow'])) {
+            $workflowService = "workflow.{$config['put_workflow']}";
+
+            $putItem = new Definition(PutItemController::class);
+            $putItem->addTag('controller.service_arguments');
+            $putItem->addArgument(new Reference($workflowService));
+            $putItem->addArgument(new Reference($config['items']));
+            $putItem->addArgument($config['prefix']);
+            $container->setDefinition("libero.content_api.{$config['internal_name']}.item.put", $putItem);
+
+            $putItemAutoTransition = new Definition(AutoTransitionListener::class);
+            $putItemAutoTransition->addTag(
+                'kernel.event_listener',
+                ['event' => "{$workflowService}.entered", 'method' => 'onEntered', 'priority' => -100]
+            );
+            $putItemAutoTransition->addArgument(new Reference($workflowService));
+            $container->setDefinition(
+                "libero.content_api.{$config['internal_name']}.item.put.workflow.auto_transition",
+                $putItemAutoTransition
+            );
+
+            $documentElementValidator = $container->findDefinition(ValidateDocumentElement::class);
+            $documentElementValidator->addTag(
+                'kernel.event_listener',
+                ['event' => "{$workflowService}.transition.validate", 'method' => 'onValidate', 'priority' => 100]
+            );
+
+            $documentElementValidator = $container->findDefinition(ValidateId::class);
+            $documentElementValidator->addTag(
+                'kernel.event_listener',
+                ['event' => "{$workflowService}.transition.validate", 'method' => 'onValidate', 'priority' => 80]
+            );
+
+            $documentElementValidator = $container->findDefinition(ValidateService::class);
+            $documentElementValidator->addTag(
+                'kernel.event_listener',
+                ['event' => "{$workflowService}.transition.validate", 'method' => 'onValidate', 'priority' => 80]
+            );
+        }
 
         $getItemList = new Definition(GetItemListController::class);
         $getItemList->addTag('controller.service_arguments');
